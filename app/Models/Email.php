@@ -57,11 +57,11 @@ class Email extends Model {
 		return $this->hasOne(BotAccount::class);
 	}
 
-	public static function areThereAnyUnusedEmails(): bool {
-		return static::doesntHave('account')->exists();
+	public static function areThereAnyUnusedEmails(bool $use_tempmail): bool {
+		return static::doesntHave('account')->where('type', $use_tempmail ? '=' : '!=', MailHandler::SECMAIL->name)->exists();
 	}
 
-	public static function getUnusedEmail(bool $use_tempmail): static {
+	public static function getUnusedEmail(bool $use_tempmail): ?static {
 		return static::doesntHave('account')
 					->where('type', $use_tempmail ? '=' : '!=', MailHandler::SECMAIL->name)
 					->inRandomOrder()->first();

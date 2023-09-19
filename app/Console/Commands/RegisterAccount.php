@@ -29,7 +29,7 @@ class RegisterAccount extends Command {
 	 * Execute the console command.
 	 */
 	public function handle(AccountRegistrationService $registrator, VPNService $vpn_service): void {
-		if ($this->hasOption('tempmail')) {
+		if ($this->option('tempmail')) {
 			$username = $registrator->getRandomUsername() . random_int(10, 99);
 			$domains = Secmail::getDomains();
 			if (empty($domains)) {
@@ -44,7 +44,7 @@ class RegisterAccount extends Command {
 			$email->save();
 		}
 
-		if (!Email::areThereAnyUnusedEmails()) {
+		if (!Email::areThereAnyUnusedEmails($this->option('tempmail'))) {
 			$this->error('No free email addresses left for registration');
 			return;
 		}
@@ -69,7 +69,7 @@ class RegisterAccount extends Command {
 	}
 
 	private function registerAccount(AccountRegistrationService $registrator, string $vpn): void {
-		$account = $registrator->createAccount($vpn, $this->hasOption('tempmail'));
+		$account = $registrator->createAccount($vpn, $this->option('tempmail'));
 		if (empty($account)) {
 			$this->error('Failed to create a new bot account');
 			return;
