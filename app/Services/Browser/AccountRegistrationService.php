@@ -492,6 +492,8 @@ class AccountRegistrationService extends BrowserService {
 				if (!$this->claimTutorialReward($account_id, $key, $category, $step)) {
 					return false;
 				}
+
+				usleep(250000 + random_int(0, 2000000));
 			}
 		}
 
