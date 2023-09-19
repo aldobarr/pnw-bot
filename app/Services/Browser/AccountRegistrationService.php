@@ -411,7 +411,6 @@ class AccountRegistrationService extends BrowserService {
 			$bounds['northeast'],
 			$bounds['southeast'],
 			$bounds['southwest'],
-			$bounds['northwest']
 		]);
 
 		return $form;
