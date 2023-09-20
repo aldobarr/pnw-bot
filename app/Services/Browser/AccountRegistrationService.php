@@ -431,8 +431,8 @@ class AccountRegistrationService extends BrowserService {
 		}
 
 		$ajax_string = $matches[0]; // The matched string
-		$data_start = strpos($ajax_string, "data: ") + strlen("data: ");
-		$data_end = strrpos($ajax_string, "}");
+		$data_start = strpos($ajax_string, 'data: ') + strlen('data: ');
+		$data_end = strrpos($ajax_string, '}');
 		$data_block = trim(substr($ajax_string, $data_start, $data_end - $data_start));
 		$data_block = substr($data_block, 0, -1);
 		$lines = explode(PHP_EOL, $data_block);
