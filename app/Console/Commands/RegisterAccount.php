@@ -43,21 +43,21 @@ class RegisterAccount extends Command {
 
 		try {
 			if ($this->option('tempmail')) {
-				$username = $registrator->getRandomUsername() . random_int(10, 99);
-				$domains = Secmail::getDomains();
-				if (empty($domains)) {
-					$this->error('No domains found from temp mail service');
-					return;
+				if (!Email::areThereAnyUnusedEmails(true)) {
+					$username = $registrator->getRandomUsername() . random_int(10, 99);
+					$domains = Secmail::getDomains();
+					if (empty($domains)) {
+						$this->error('No domains found from temp mail service');
+						return;
+					}
+
+					$email = new Email;
+					$email->login = $username . '@' . $domains[random_int(0, count($domains) - 1)];
+					$email->password = '';
+					$email->type = MailHandler::SECMAIL;
+					$email->save();
 				}
-
-				$email = new Email;
-				$email->login = $username . '@' . $domains[random_int(0, count($domains) - 1)];
-				$email->password = '';
-				$email->type = MailHandler::SECMAIL;
-				$email->save();
-			}
-
-			if (!Email::areThereAnyUnusedEmails($this->option('tempmail'))) {
+			} else if (!Email::areThereAnyUnusedEmails(false)) {
 				$this->error('No free email addresses left for registration');
 				return;
 			}
