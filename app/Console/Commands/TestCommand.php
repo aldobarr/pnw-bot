@@ -8,6 +8,7 @@ use App\Enums\WarType;
 use App\Mail\MailFactory;
 use App\Models\BotAccount;
 use App\Models\Email;
+use App\Models\Event;
 use App\Models\Nation;
 use App\Models\NationName;
 use App\Models\WorldCity;
@@ -50,6 +51,6 @@ class TestCommand extends Command {
 	 * Execute the console command.
 	 */
 	public function handle(LoginService $login_service, VPNService $vpn, AccountSimulationService $simulator, AccountRegistrationService $reg): void {
-		$this->info(BotAccount::where('next_login_at', '<=', now())->count());
+		//$this->info(BotAccount::where('next_login_at', '<=', now())->count());
 	}
 }

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 class BotAccount extends Model {
@@ -220,6 +221,10 @@ class BotAccount extends Model {
 
 	public function getMailHandler(): Mail {
 		return $this->email->getMailHandler();
+	}
+
+	public function events(): HasMany {
+		return $this->hasMany(Event::class, 'account_id');
 	}
 
 	public function sameNetwork(): Attribute {
