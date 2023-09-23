@@ -147,7 +147,7 @@ class AccountRegistrationService extends BrowserService {
 			$form[$name] = $options[random_int(0, count($options) - 1)];
 		}
 
-		$form = $this->getRandomMap($form);
+		$form = $this->getMapFromCapital($form, $capital);
 		$nation = $this->parseHTML($this->client->asForm()->post(static::NATION_CREATE_PAGE, $form));
 		$right_column = $nation->getElementById('rightcolumn');
 		$all_ps = $right_column->getElementsByTagName('p');
@@ -400,11 +400,10 @@ class AccountRegistrationService extends BrowserService {
 		return null;
 	}
 
-	public function getRandomMap(array $form): array {
-		$city = WorldCity::inRandomOrder()->first();
-		$bounds = PoliticsAndWarAPIService::getBoundingBox($city->lat, $city->lng, 8);
-		$form['latitude'] = $city->lat;
-		$form['longitude'] = $city->lng;
+	public function getMapFromCapital(array $form, WorldCity $capital): array {
+		$bounds = PoliticsAndWarAPIService::getBoundingBox($capital->lat, $capital->lng, 8);
+		$form['latitude'] = $capital->lat;
+		$form['longitude'] = $capital->lng;
 		$form['polygonVertices'] = json_encode([
 			$bounds['northwest'],
 			$bounds['northeast'],
