@@ -210,6 +210,10 @@ class BotAccount extends Model {
 		return $this->belongsTo(Nation::class);
 	}
 
+	public function capital(): BelongsTo {
+		return $this->belongsTo(WorldCity::class, 'capital_id');
+	}
+
 	public function email(): BelongsTo {
 		return $this->belongsTo(Email::class);
 	}
