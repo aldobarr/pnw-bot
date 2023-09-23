@@ -29,26 +29,6 @@ class RegisterAccount extends Command {
 	 * Execute the console command.
 	 */
 	public function handle(AccountRegistrationService $registrator, VPNService $vpn_service): void {
-		if ($this->option('tempmail')) {
-			$username = $registrator->getRandomUsername() . random_int(10, 99);
-			$domains = Secmail::getDomains();
-			if (empty($domains)) {
-				$this->error('No domains found from temp mail service');
-				return;
-			}
-
-			$email = new Email;
-			$email->login = $username . '@' . $domains[random_int(0, count($domains) - 1)];
-			$email->password = '';
-			$email->type = MailHandler::SECMAIL;
-			$email->save();
-		}
-
-		if (!Email::areThereAnyUnusedEmails($this->option('tempmail'))) {
-			$this->error('No free email addresses left for registration');
-			return;
-		}
-
 		if ($vpn_service->isConnected()) {
 			$this->error('VPN already connected');
 			return;
@@ -62,6 +42,26 @@ class RegisterAccount extends Command {
 		}
 
 		try {
+			if ($this->option('tempmail')) {
+				$username = $registrator->getRandomUsername() . random_int(10, 99);
+				$domains = Secmail::getDomains();
+				if (empty($domains)) {
+					$this->error('No domains found from temp mail service');
+					return;
+				}
+
+				$email = new Email;
+				$email->login = $username . '@' . $domains[random_int(0, count($domains) - 1)];
+				$email->password = '';
+				$email->type = MailHandler::SECMAIL;
+				$email->save();
+			}
+
+			if (!Email::areThereAnyUnusedEmails($this->option('tempmail'))) {
+				$this->error('No free email addresses left for registration');
+				return;
+			}
+
 			$this->registerAccount($registrator, $vpn);
 		} finally {
 			$vpn_service->disconnect();
