@@ -161,6 +161,10 @@ class BotAccount extends Model {
 	}
 
 	public function isOfficer(): bool {
+		if (empty($this->nation_id) || empty($this->nation)) {
+			return false;
+		}
+
 		return $this->nation->alliance_id === AccountSimulationService::ALLIANCE_ID && strcasecmp($this->nation->data->alliance_position, 'LEADER') === 0;
 	}
 
