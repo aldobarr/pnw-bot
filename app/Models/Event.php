@@ -31,10 +31,12 @@ class Event extends Model {
 		return $this->belongsTo(BotAccount::class);
 	}
 
-	public static function LogEvent(string $name, mixed $payload, ?\Throwable $exception): static {
+	public static function logEvent(string $name, ?BotAccount $account, mixed $payload = null, mixed $secondary_payload = null, ?\Throwable $exception = null): static {
 		$event = new static;
 		$event->name = $name;
+		$event->account_id = $account?->id;
 		$event->payload = $payload;
+		$event->secondary_payload = $secondary_payload;
 		$event->exception = $exception;
 		$event->save();
 

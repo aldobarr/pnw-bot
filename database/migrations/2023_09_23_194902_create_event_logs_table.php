@@ -14,6 +14,7 @@ return new class extends Migration {
 			$table->foreignId('account_id')->nullable()->references('id')->on('bot_accounts')->constrained()->cascadeOnDelete();
 			$table->string('name');
 			$table->longText('payload');
+			$table->longText('secondary_payload');
             $table->longText('exception');
 			$table->timestamps();
 		});
