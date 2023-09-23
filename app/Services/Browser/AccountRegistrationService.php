@@ -5,23 +5,18 @@ namespace App\Services\Browser;
 use App\Enums\Resource;
 use App\Mail\Contracts\Mail;
 use App\Models\BotAccount;
-use App\Models\CityName;
 use App\Models\Email;
 use App\Models\NationName;
 use App\Models\WorldCity;
 use App\Services\BrowserService;
-use App\Services\LocationService;
 use App\Services\PoliticsAndWarAPIService;
 use GuzzleHttp\Cookie\SetCookie;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use IvoPetkov\HTML5DOMDocument;
 use IvoPetkov\HTML5DOMElement;
-use Location\Bearing\BearingEllipsoidal;
-use Location\Coordinate;
-use Location\Factory\BoundsFactory;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AccountRegistrationService extends BrowserService {
 	use PoliticsAndWar;
@@ -534,7 +529,7 @@ class AccountRegistrationService extends BrowserService {
 			$this->getRandomNationName() :
 			(
 				strcmp($type, 'city') === 0 ?
-					$this->getRandomCityName(true) :
+					$this->getRandomCityName() :
 					ucwords(strtolower($this->getRandomUsername()))
 			)
 		);
@@ -603,8 +598,12 @@ class AccountRegistrationService extends BrowserService {
 		return NationName::inRandomOrder()->value('name');
 	}
 
-	public function getRandomCityName(bool $during_nation_create = false): string {
-		return CityName::inRandomOrder()->value($during_nation_create ? 'name_ascii' : 'name');
+	public function getRandomCityName(?string $country_iso = null): string {
+		return WorldCity::where(function(Builder $query) use ($country_iso) {
+			if (!is_null($country_iso)) {
+				$query->where('country_iso', $country_iso);
+			}
+		})->inRandomOrder()->value(is_null($country_iso) ? 'name_normalized' : 'name');
 	}
 
 	private function parseUsernameMasterlist(): void {

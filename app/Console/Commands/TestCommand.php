@@ -7,7 +7,6 @@ use App\Enums\Resource;
 use App\Enums\WarType;
 use App\Mail\MailFactory;
 use App\Models\BotAccount;
-use App\Models\CityName;
 use App\Models\Email;
 use App\Models\Nation;
 use App\Models\NationName;
@@ -51,24 +50,6 @@ class TestCommand extends Command {
 	 * Execute the console command.
 	 */
 	public function handle(LoginService $login_service, VPNService $vpn, AccountSimulationService $simulator, AccountRegistrationService $reg): void {
-		/*$file = fopen(storage_path('app/emails.csv'), 'r');
-		try {
-			fgetcsv($file);
-			while ($line = fgetcsv($file)) {
-				$email = preg_replace('/\s+/', '', $line[0]);
-				$password = preg_replace('/\s+/', '', $line[3]);
-				$handler = MailFactory::create(MailHandler::GMAIL, $email, $password);
-				try {
-					$handler->getAllInboxes();
-					$this->info($email);
-				} catch (\Throwable) {}
-			}
-		} finally {
-			fclose($file);
-		}*/
-
-		//$this->info(BotAccount::where('next_login_at', '<=', now())->count());
+		$this->info(BotAccount::where('next_login_at', '<=', now())->count());
 	}
-
-
 }

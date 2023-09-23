@@ -274,7 +274,7 @@ trait CitySimulation {
 			$form[$name] = $input->getAttribute('value') ?? '';
 		}
 
-		$form['newcityname'] = app(AccountRegistrationService::class)->getRandomCityName();
+		$form['newcityname'] = app(AccountRegistrationService::class)->getRandomCityName($this->account->capital->country_iso);
 		$bought_page = $this->parseHTML($this->client->asForm()->post('/city/create/', $form));
 		if (empty($bought_page)) {
 			return false;
