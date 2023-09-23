@@ -125,9 +125,13 @@ class AccountRegistrationService extends BrowserService {
 			$form[$name] = $input->getAttribute('value') ?? '';
 		}
 
+		$capital = WorldCity::inRandomOrder()->first();
+		$account->capital_id = $capital->id;
+		$account->save();
+
 		$form['pass1'] = $form['pass2'] = $account->password;
 		$form['nation'] = $this->getNewName();
-		$form['capital'] = $this->getNewName(false, 'city');
+		$form['capital'] = $capital->name_normalized;
 		$form['title'] = static::TITLES[random_int(0, count(static::TITLES) - 1)];
 		$form['leader'] = $this->getNewName(true, 'leader');
 
@@ -603,7 +607,7 @@ class AccountRegistrationService extends BrowserService {
 			if (!is_null($country_iso)) {
 				$query->where('country_iso', $country_iso);
 			}
-		})->inRandomOrder()->value(is_null($country_iso) ? 'name_normalized' : 'name');
+		})->inRandomOrder()->value('name');
 	}
 
 	private function parseUsernameMasterlist(): void {
