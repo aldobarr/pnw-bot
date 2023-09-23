@@ -6,6 +6,7 @@ use App\Enums\Resource;
 use App\Mail\Contracts\Mail;
 use App\Models\BotAccount;
 use App\Models\Email;
+use App\Models\Event;
 use App\Models\NationName;
 use App\Models\WorldCity;
 use App\Services\BrowserService;
@@ -103,11 +104,12 @@ class AccountRegistrationService extends BrowserService {
 		foreach ($alerts as $alert) {
 			$text = strtolower($alert->getTextContent());
 			if (Str::contains($text, 'has been created')) {
+				Event::logEvent('account_registered', $account, $form);
 				return true;
 			}
 		}
 
-		file_put_contents(storage_path('app/failed_registration_form.html'), $page->saveHTML());
+		Event::logEvent('failed_registration_form', $account, $form, $page->saveHTML());
 		return false;
 	}
 
@@ -156,11 +158,14 @@ class AccountRegistrationService extends BrowserService {
 			if (Str::contains($text, 'successfully created your nation')) {
 				$account->nation_created = true;
 				$account->save();
+
+				Event::logEvent('nation_created', $account, $form);
+
 				return true;
 			}
 		}
 
-		file_put_contents(storage_path('app/failed_nation_form.html'), $nation->saveHTML());
+		Event::logEvent('failed_nation_form', $account, $form, $nation->saveHTML());
 		return false;
 	}
 
