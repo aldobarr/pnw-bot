@@ -29,7 +29,7 @@ class ImportNations extends Command {
 		$vpn->excludeCurrentProcess();
 
 		try {
-			$api_service = new PoliticsAndWarAPIService(BotAccount::getLily()->api_key);
+			$api_service = new PoliticsAndWarAPIService(BotAccount::getMainAccount()->api_key);
 			$api_service->importNations($this->output->createProgressBar());
 			$this->info(PHP_EOL . 'Process Complete');
 		} catch (\Throwable $t) {

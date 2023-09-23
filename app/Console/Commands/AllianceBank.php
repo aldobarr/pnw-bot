@@ -28,7 +28,7 @@ class AllianceBank extends Command {
 	 * Execute the console command.
 	 */
 	public function handle(VPNService $vpn): void {
-		$trixie = BotAccount::getLily();
+		$trixie = BotAccount::getMainAccount();
 		if ($vpn->isConnected()) {
 			$this->error('Unable to check alliance bank at the moment due to established VPN Connection');
 			return;

@@ -35,7 +35,7 @@ class ImportMarketData extends Command {
 			$time = now();
 			$inserts = [];
 			$resources = Resource::all(Resource::MONEY);
-			$api_service = new PoliticsAndWarAPIService(BotAccount::getLily()->api_key);
+			$api_service = new PoliticsAndWarAPIService(BotAccount::getMainAccount()->api_key);
 
 			foreach ($resources as $resource) {
 				$data = $api_service->getMarketData($resource);

@@ -29,7 +29,7 @@ class ImportWars extends Command {
 		$vpn->excludeCurrentProcess();
 
 		try {
-			$api_service = new PoliticsAndWarAPIService(BotAccount::getLily()->api_key);
+			$api_service = new PoliticsAndWarAPIService(BotAccount::getMainAccount()->api_key);
 			$api_service->importWars($this->output->createProgressBar(), intval($this->argument('days_ago') ?? 1));
 			$this->info(PHP_EOL . 'Process Complete');
 		} catch (\Throwable $t) {

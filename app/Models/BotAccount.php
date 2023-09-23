@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 class BotAccount extends Model {
 	use HasFactory;
 
+	public const MAIN_ACCOUNT_ID = 25;
 	public const NATION_DATA_COLUMNS = ['api_key' => true, 'nation_id' => true];
 
 	/**
@@ -229,7 +230,7 @@ class BotAccount extends Model {
 		return BotAccount::whereNotNull('vpn')->pluck('vpn', 'vpn')->toArray();
 	}
 
-	public static function getLily(): BotAccount {
-		return BotAccount::where('id', 1)->first();
+	public static function getMainAccount(): BotAccount {
+		return BotAccount::where('id', static::MAIN_ACCOUNT_ID)->first();
 	}
 }
