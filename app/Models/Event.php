@@ -24,6 +24,7 @@ class Event extends Model {
 	 */
 	protected $casts = [
 		'payload' => Serialize::class,
+		'secondary_payload' => Serialize::class,
 		'exception' => Serialize::class,
 	];
 
