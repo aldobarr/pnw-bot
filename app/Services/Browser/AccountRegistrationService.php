@@ -127,7 +127,7 @@ class AccountRegistrationService extends BrowserService {
 			$form[$name] = $input->getAttribute('value') ?? '';
 		}
 
-		$capital = WorldCity::inRandomOrder()->first();
+		$capital = WorldCity::whereRaw('LENGTH(`name_normalized`) > 4')->inRandomOrder()->first();
 		$account->capital_id = $capital->id;
 		$account->save();
 
