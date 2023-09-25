@@ -230,11 +230,11 @@ class AccountRegistrationService extends BrowserService {
 			}
 		}
 
-		if (empty($message) || empty($message->textHtml)) {
+		if (empty($reset_message) || empty($reset_message->textHtml)) {
 			return false;
 		}
 
-		$reset_link = $this->detectResetPasswordLink($message->textHtml);
+		$reset_link = $this->detectResetPasswordLink($reset_message->textHtml);
 		if (empty($reset_link)) {
 			return false;
 		}

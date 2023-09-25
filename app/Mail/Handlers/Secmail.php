@@ -77,12 +77,12 @@ class SecmailMessage {
 	private Secmail $client;
 	private string $textHtml = '';
 
-	public function __construct(int $id, string $from, string $subject, string $date, Secmail $client) {
+	public function __construct(int $id, string $from, string $subject, string $date, Secmail &$client) {
 		$this->id = $id;
 		$this->from = $from;
 		$this->subject = $subject;
 		$this->date = Carbon::parse($date);
-		$this->client = $client;
+		$this->client = &$client;
 	}
 
 	public function __get(string $name): string {
@@ -96,5 +96,13 @@ class SecmailMessage {
 
 		$this->textHtml = $this->client->getMessage($this->id)->body ?? '';
 		return $this->textHtml;
+	}
+
+	public function __isset($name): bool {
+		if (strcmp($name, 'textHtml') === 0) {
+			return true;
+		}
+
+		return isset($this->$name);
 	}
 }
