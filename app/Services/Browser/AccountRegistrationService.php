@@ -10,7 +10,7 @@ use App\Models\Event;
 use App\Models\NationName;
 use App\Models\WorldCity;
 use App\Services\BrowserService;
-use App\Services\PoliticsAndWarAPIService;
+use App\Services\MapService;
 use GuzzleHttp\Cookie\SetCookie;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -120,13 +120,7 @@ class AccountRegistrationService extends BrowserService {
 			return false;
 		}
 
-		$form = [];
-		$inputs = $nation_form->getElementsByTagName('input');
-		foreach ($inputs as $input) {
-			$name = $input->getAttribute('name');
-			$form[$name] = $input->getAttribute('value') ?? '';
-		}
-
+		$form = $this->getFormInputs($nation_form);
 		$capital = WorldCity::whereRaw('LENGTH(`name_normalized`) > 4')->inRandomOrder()->first();
 		$account->capital_id = $capital->id;
 		$account->save();
@@ -136,6 +130,7 @@ class AccountRegistrationService extends BrowserService {
 		$form['capital'] = $capital->name_normalized;
 		$form['title'] = static::TITLES[random_int(0, count(static::TITLES) - 1)];
 		$form['leader'] = $this->getNewName(true, 'leader');
+		$form['createNation'] = '';
 
 		$selects = $nation_form->getElementsByTagName('select');
 		foreach ($selects as $select) {
@@ -165,7 +160,7 @@ class AccountRegistrationService extends BrowserService {
 			}
 		}
 
-		Event::logEvent('failed_nation_form', $account, $form, $nation->saveHTML());
+		Event::logEvent('failed_nation_form', $account, $form, $nation->saveHTML(), new \Exception($nation_page->saveHTML()));
 		return false;
 	}
 
@@ -406,16 +401,14 @@ class AccountRegistrationService extends BrowserService {
 	}
 
 	public function getMapFromCapital(array $form, WorldCity $capital): array {
-		$bounds = PoliticsAndWarAPIService::getBoundingBox($capital->lat, $capital->lng, 8);
-		$form['latitude'] = $capital->lat;
-		$form['longitude'] = $capital->lng;
-		$form['polygonVertices'] = json_encode([
-			$bounds['northwest'],
-			$bounds['northeast'],
-			$bounds['southeast'],
-			$bounds['southwest'],
-		]);
+		$map = new MapService($capital->lat, $capital->lng);
+		$center = $map->getBounds()->calculateCenterPoint();
 
+		$form['manualContinent'] = 'no-selection';
+		$form['polygonVertices'] = str_replace('"', '', json_encode($map->getBounds()->toArray()));
+		$form['latitude'] = $center->getLatitude();
+		$form['longitude'] = $center->getLongitude();
+		$form['polygonArea'] = ''; //$map->getBounds()->calculateArea();
 		return $form;
 	}
 

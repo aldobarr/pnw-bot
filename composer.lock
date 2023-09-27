@@ -4,8 +4,65 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8eb29678239261f827a7aa5a9aaeeb5f",
+    "content-hash": "9933ab993da85c9426c2e8d14367509c",
     "packages": [
+        {
+            "name": "ballen/distical",
+            "version": "3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/allebb/distical.git",
+                "reference": "cf66dd2df0fbb4c793d4259f78b86d8b4cbedc4f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/allebb/distical/zipball/cf66dd2df0fbb4c793d4259f78b86d8b4cbedc4f",
+                "reference": "cf66dd2df0fbb4c793d4259f78b86d8b4cbedc4f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ballen\\Distical\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "ballen",
+                    "email": "ballen@bobbyallen.me",
+                    "homepage": "http://bobbyallen.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A distance (Lat/Long) calculation library for PHP",
+            "homepage": "http://github.com/allebb/distical",
+            "keywords": [
+                "calculator",
+                "distance",
+                "gps",
+                "lat",
+                "latitude",
+                "lng",
+                "long",
+                "longditude",
+                "mapping"
+            ],
+            "support": {
+                "issues": "https://github.com/allebb/distical/issues",
+                "source": "https://github.com/allebb/distical/tree/3.0.3"
+            },
+            "time": "2022-12-25T00:45:19+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.11.0",

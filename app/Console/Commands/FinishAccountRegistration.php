@@ -45,14 +45,19 @@ class FinishAccountRegistration extends Command {
 		}
 
 		try {
+			$logged_in = false;
 			if (!$account->nation_created) {
-				if (!$registrator->resetPassword($account)) {
+				if ($account->verified && $login_service->login($account->email->login, $account->password)) {
+					$logged_in = true;
+				}
+
+				if (!$logged_in && !$registrator->resetPassword($account)) {
 					$this->error('Unable to reset account password');
 					return;
 				}
 			}
 
-			if (!$login_service->login($account->email->login, $account->password)) {
+			if (!$logged_in && !$login_service->login($account->email->login, $account->password)) {
 				$this->error('Unable to login to account');
 				return;
 			}
