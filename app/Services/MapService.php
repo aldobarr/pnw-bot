@@ -72,15 +72,12 @@ class MapService {
 			$lng2 = $eastmost;
 		}
 
-		if ($add_variance) {
-			[$lat1, $lat2, $lng1, $lng2] = static::addVariance($lat1, $lat2, $lng1, $lng2);
-		}
-
 		$this->bounds = new CityBounds(
 			$lat1, $lng2,
 			$lat1, $lng1,
 			$lat2, $lng1,
 			$lat2, $lng2,
+			$add_variance
 		);
 	}
 
@@ -95,6 +92,7 @@ class MapService {
 	}
 
 	public static function addVariance(float $lat1, float $lat2, float $lng1, float $lng2): array {
+
 		return [$lat1, $lat2, $lng1, $lng2];
 	}
 }
@@ -110,11 +108,12 @@ class CityBounds {
 		float $ne_lat, float $ne_lng,
 		float $se_lat, float $se_lng,
 		float $sw_lat, float $sw_lng,
+		bool $add_variance
 	) {
 		$this->northwest = new LatLong($nw_lat, $nw_lng);
-		$this->northeast = new LatLong($ne_lat, $ne_lng);
-		$this->southeast = new LatLong($se_lat, $se_lng);
-		$this->southwest = new LatLong($sw_lat, $sw_lng);
+		$this->northeast = new LatLong($add_variance ? static::addPointVariance($ne_lat) : $ne_lat, $add_variance ? static::addPointVariance($ne_lng) : $ne_lng);
+		$this->southeast = new LatLong($add_variance ? static::addPointVariance($se_lat) : $se_lat, $add_variance ? static::addPointVariance($se_lng) : $se_lng);
+		$this->southwest = new LatLong($add_variance ? static::addPointVariance($sw_lat) : $sw_lat, $add_variance ? static::addPointVariance($sw_lng) : $sw_lng);
 	}
 
 	public function toArray(): array {
@@ -127,10 +126,18 @@ class CityBounds {
 	}
 
 	public function calculateArea(): float {
-		$calculator = new Calculator($this->northwest, $this->northeast);
-		$length = $calculator->get();
-		$width = $calculator->removePoint(1)->addPoint($this->southwest)->get();
-		return $length->asMiles() * $width->asMiles();
+		$center_distance = abs((new Calculator($this->northwest, $this->southeast))->get()->asMiles());
+		$height_triangle1 = abs((new Calculator($this->northwest, $this->southwest))->get()->asMiles());
+		$length_triangle1 = abs((new Calculator($this->southwest, $this->southeast))->get()->asMiles());
+		$sp_triangle1 = ($center_distance + $height_triangle1 + $length_triangle1) / 2;
+
+		$height_triangle2 = abs((new Calculator($this->northwest, $this->northeast))->get()->asMiles());
+		$length_triangle2 = abs((new Calculator($this->northeast, $this->southeast))->get()->asMiles());
+		$sp_triangle2 = ($center_distance + $height_triangle2 + $length_triangle2) / 2;
+
+		$area_triangle1 = sqrt($sp_triangle1 * ($sp_triangle1 - $center_distance) * ($sp_triangle1 - $height_triangle1) * ($sp_triangle1 - $length_triangle1));
+		$area_triangle2 = sqrt($sp_triangle2 * ($sp_triangle2 - $center_distance) * ($sp_triangle2 - $height_triangle2) * ($sp_triangle2 - $length_triangle2));
+		return $area_triangle1 + $area_triangle2;
 	}
 
 	public function calculateCenterPoint(): LatLong {
@@ -174,5 +181,9 @@ class CityBounds {
 			round($sum_lat / count($bounds), MapService::COORDINATE_CENTER_ROUND_PRECISION),
 			round($lng, MapService::COORDINATE_CENTER_ROUND_PRECISION)
 		);
+	}
+
+	public static function addPointVariance(float $point): float {
+		return $point + ((random_int(1, 100) <= 50 ? random_int(-5, 12) : random_int(-12, 7)) / 100);
 	}
 }
