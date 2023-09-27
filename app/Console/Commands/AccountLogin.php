@@ -61,7 +61,7 @@ class AccountLogin extends Command {
 	private function doLogins() {
 		$query = BotAccount::with('email')->where('banned', false)->where(function(Builder $q) {
 			$q->whereNull('next_login_at')->orWhere('next_login_at', '<=', Carbon::now());
-		});
+		})->where('nation_created', true)->where('tutorial_completed', true)->where('built_first_project', true);
 
 		foreach ($query->lazy() as $account) {
 			if ($account->canLogin()) {
