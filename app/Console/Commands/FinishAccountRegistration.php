@@ -88,7 +88,7 @@ class FinishAccountRegistration extends Command {
 			}
 
 			if (!$account->built_first_project) {
-				if ($registrator->buyFirstProject()) {
+				if ($registrator->buyFirstProject($account)) {
 					$account->built_first_project = true;
 					$account->save();
 				}

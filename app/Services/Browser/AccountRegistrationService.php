@@ -73,7 +73,7 @@ class AccountRegistrationService extends BrowserService {
 			$account->save();
 		}
 
-		if ($this->buyFirstProject()) {
+		if ($this->buyFirstProject($account)) {
 			$account->built_first_project = true;
 			$account->save();
 		}
@@ -288,8 +288,8 @@ class AccountRegistrationService extends BrowserService {
 		return Str::contains($text, 'address does not exist');
 	}
 
-	public function buyFirstProject(): bool {
-		if (!$this->buyFoodForProject()) {
+	public function buyFirstProject(BotAccount $account): bool {
+		if (!$this->buyFoodForProject($account)) {
 			return false;
 		}
 
@@ -314,8 +314,9 @@ class AccountRegistrationService extends BrowserService {
 		return false;
 	}
 
-	private function buyFoodForProject(int $attempts = 5): bool {
+	private function buyFoodForProject(BotAccount $account, int $attempts = 5): bool {
 		$simulator = app(AccountSimulationService::class);
+		$simulator->setAccount($account);
 		$simulator->setCookies($this->getCookies());
 
 		do {
