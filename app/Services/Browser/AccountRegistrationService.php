@@ -202,6 +202,7 @@ class AccountRegistrationService extends BrowserService {
 			return false;
 		}
 
+		sleep(random_int(10, 20));
 		$mailboxes = $mail_handler->getAllInboxes();
 		if (empty($mailboxes)) {
 			return false;
