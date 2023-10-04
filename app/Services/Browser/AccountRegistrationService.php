@@ -57,7 +57,6 @@ class AccountRegistrationService extends BrowserService {
 			return null;
 		}
 
-		sleep(random_int(10, 20));
 		if (!$this->verifyEmail($mail_handler)) {
 			return null;
 		}
@@ -105,6 +104,7 @@ class AccountRegistrationService extends BrowserService {
 			$text = strtolower($alert->getTextContent());
 			if (Str::contains($text, 'has been created')) {
 				Event::logEvent('account_registered', $account, $form);
+				sleep(random_int(10, 20));
 				return true;
 			}
 		}
