@@ -24,13 +24,19 @@ class BrowserService {
 	private int $timeout;
 	private CookieJar $cookieJar;
 
-	public function __construct(string $base_url = '', int $timeout = 30, int $connection_timeout = 60) {
+	public function __construct(
+		string $base_url = '',
+		int $timeout = 30,
+		int $connection_timeout = 60,
+		?Callable $request_middleware = null,
+		?Callable $response_middleware = null
+	) {
 		$this->userAgent = config('browser.user-agent');
 		$this->baseUrl = $base_url;
 		$this->connectionTimeout = $connection_timeout;
 		$this->timeout = $timeout;
 		$this->cookieJar = new CookieJar;
-		$this->resetClient();
+		$this->resetClient($request_middleware, $response_middleware);
 	}
 
 	public function isRandomCheck(HTML5DOMDocument $page): bool {
@@ -166,7 +172,7 @@ class BrowserService {
 		return $recaptcha->getAttribute('data-sitekey');
 	}
 
-	protected function resetClient(): void {
+	protected function resetClient(?Callable $request_middleware = null, ?Callable $response_middleware = null): void {
 		$this->client = Http::retry(3, 1250, throw: false)->withUserAgent($this->userAgent)->withOptions([
 			'base_uri' => $this->baseUrl,
 			'timeout' => $this->timeout,
@@ -195,8 +201,8 @@ class BrowserService {
 
 			$this->lastRequest = $request;
 			return $request;
-		})->withResponseMiddleware(function(ResponseInterface $response) {
-			$this->resetClient();
+		})->withResponseMiddleware(function(ResponseInterface $response) use ($request_middleware, $response_middleware) {
+			$this->resetClient($request_middleware, $response_middleware);
 			$page = $this->parseHTML($response->getBody());
 			$intended_uri = $this->lastRequest->getUri();
 			if (strcasecmp($this->lastRequest->getMethod(), 'GET') === 0 && $this->isRandomCheck($page)) {
@@ -225,5 +231,13 @@ class BrowserService {
 			$this->lastPage = $page;
 			return $response;
 		});
+
+		if ($request_middleware !== null) {
+			$this->client->withRequestMiddleware($request_middleware);
+		}
+
+		if ($response_middleware !== null) {
+			$this->client->withResponseMiddleware($response_middleware);
+		}
 	}
 }

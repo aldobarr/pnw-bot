@@ -20,6 +20,10 @@ class AccountSimulationService extends BrowserService {
 	protected BotAccount $account;
 	protected object $nation;
 
+	public function __construct(string $base_url = '', int $timeout = 30, int $connection_timeout = 60) {
+		parent::__construct($base_url, $timeout, $connection_timeout, null, $this->checkResearchSurvey(...));
+	}
+
 	public function setAccount(BotAccount $account) {
 		$this->account = $account;
 		$this->loadNationSimData();
@@ -27,7 +31,6 @@ class AccountSimulationService extends BrowserService {
 
 	public function simulateDailyLogin(): void {
 		$this->ensureAnimalChanged();
-		$this->checkResearchSurvey();
 
 		//$this->ensureAlliance();
 		$this->visitWars();

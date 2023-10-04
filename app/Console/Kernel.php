@@ -39,10 +39,10 @@ class Kernel extends ConsoleKernel {
 				->withoutOverlapping()
 				->runInBackground();
 
-		$schedule->command(DetectWars::class)
+		/*$schedule->command(DetectWars::class)
 				->everyTenSeconds()
 				->withoutOverlapping()
-				->runInBackground();
+				->runInBackground();*/
 	}
 
 	/**

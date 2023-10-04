@@ -5,7 +5,6 @@ namespace App\Services\Browser\AccountSimulation;
 use App\Enums\Resource;
 use App\Services\Browser\AccountSimulationService;
 use App\Services\LocationService;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 trait NationSimulation {
@@ -107,24 +106,24 @@ trait NationSimulation {
 		$this->client->asForm()->post('index.php?' . http_build_query($notif_form), $form);
 	}
 
-	private function checkResearchSurvey(): void {
+	private function checkResearchSurvey(\Psr\Http\Message\ResponseInterface $response): \Psr\Http\Message\ResponseInterface {
 		if ($this->account->completed_survey) {
-			return;
+			return $response;
 		}
 
-		$home_page = $this->parseHTML($this->client->get('/'));
-		$survey_modal = $home_page?->getElementById('researchsurveymodal');
+		$page = $this->parseHTML($response->getBody());
+		$survey_modal = $page?->getElementById('researchsurveymodal');
 		if (empty($survey_modal)) {
-			return;
+			return $response;
 		}
 
 		$whois = LocationService::getLocation();
 		if ($whois === null) {
-			return;
+			return $response;
 		}
 
 		$research_script = '';
-		$scripts = $home_page->getElementsByTagName('script');
+		$scripts = $page->getElementsByTagName('script');
 		foreach ($scripts as $script) {
 			$html = $script->innerHTML;
 			if (Str::contains($html, 'saveResearch')) {
@@ -134,24 +133,24 @@ trait NationSimulation {
 		}
 
 		if (empty($research_script)) {
-			return;
+			return $response;
 		}
 
 		$api_key_string = 'api_key=';
 		$find_key_location = stripos($research_script, $api_key_string);
 		if ($find_key_location === false) {
-			return;
+			return $response;
 		}
 
 		$find_end_key_location = stripos($research_script, '",', $find_key_location);
 		if ($find_end_key_location === false) {
-			return;
+			return $response;
 		}
 
 		$search_str_len = strlen($api_key_string);
 		$api_key = substr($research_script, $find_key_location + $search_str_len, $find_end_key_location - ($find_key_location + $search_str_len));
 		if (empty($api_key)) {
-			return;
+			return $response;
 		}
 
 		$form = [
@@ -165,17 +164,21 @@ trait NationSimulation {
 			'api_key' => $api_key
 		];
 
-		$response = $this->client->asForm()->post('/api/researchsurvey.php', $form);
-		if (!$response->successful()) {
-			return;
+		$this->account->completed_survey = true; // Prevent next client response middleware from doing anything
+		$api_response = $this->client->asForm()->post('/api/researchsurvey.php', $form);
+		$this->account->completed_survey = false; // Reset value
+
+		if (!$api_response->successful()) {
+			return $response;
 		}
 
-		if (strcasecmp($response->body(), 'success') !== 0) {
-			return;
+		if (strcasecmp($api_response->body(), 'success') !== 0) {
+			return $response;
 		}
 
 		$this->account->completed_survey = true;
 		$this->account->save();
+		return $response;
 	}
 
 	private function editNation(string $key, string $value): bool {
