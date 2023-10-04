@@ -7,6 +7,7 @@ use App\Services\Browser\AccountSimulationService;
 use App\Services\Browser\LoginService;
 use App\Services\PoliticsAndWarAPIService;
 use App\Services\VPNService;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,18 +39,6 @@ class BotAccount extends Model {
 		'last_login_at' => 'datetime',
 		'next_login_at' => 'datetime',
 	];
-
-	public function canLogin(): bool {
-		if (!$this->nation_created || !$this->tutorial_completed || !$this->built_first_project) {
-			return false;
-		}
-
-		if (empty($this->next_login_at)) {
-			return true;
-		}
-
-		return Carbon::now()->greaterThanOrEqualTo($this->next_login_at);
-	}
 
 	public function login(): void {
 		$vpn_service = app(VPNService::class);
@@ -237,6 +226,12 @@ class BotAccount extends Model {
 
 	public function sameNetworkSecond(): BelongsToMany {
 		return $this->belongsToMany(static::class, 'same_network', 'second_account_id', 'first_account_id');
+	}
+
+	public static function loginQueue(): Builder {
+		return static::with('email')->where('banned', false)->where(function(Builder $q) {
+			$q->whereNull('next_login_at')->orWhere('next_login_at', '<=', Carbon::now());
+		})->where('nation_created', true)->where('tutorial_completed', true)->where('built_first_project', true);
 	}
 
 	public static function getUsedMap(): array {

@@ -59,15 +59,10 @@ class AccountLogin extends Command {
 	}
 
 	private function doLogins() {
-		$query = BotAccount::with('email')->where('banned', false)->where(function(Builder $q) {
-			$q->whereNull('next_login_at')->orWhere('next_login_at', '<=', Carbon::now());
-		})->where('nation_created', true)->where('tutorial_completed', true)->where('built_first_project', true);
-
+		$query = BotAccount::loginQueue();
 		foreach ($query->lazy() as $account) {
-			if ($account->canLogin()) {
-				$this->info('Performing login process for account: ' . $account->id);
-				$account->login();
-			}
+			$this->info('Performing login process for account: ' . $account->id);
+			$account->login();
 		}
 
 		$this->info('Process complete');
